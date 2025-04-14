@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const mongoose = require("mongoose");
 
 // Get user profile
 const getProfile = async (req, res) => {
@@ -34,7 +35,6 @@ const addClothingItem = async (req, res) => {
       textura,
       estacion,
       ocasion,
-      imageURL,
     } = req.body;
 
     // Validate required fields
@@ -53,6 +53,16 @@ const addClothingItem = async (req, res) => {
         .json({ message: "Todos los campos son requeridos" });
     }
 
+    // Inicializar la URL de la imagen como vacía
+    let imageURL = "";
+
+    // Si hay un archivo de imagen cargado
+    if (req.file) {
+      // Crear la URL para acceder a la imagen
+      imageURL = `/api/images/${req.file.filename}`;
+      console.log("Imagen subida con éxito:", req.file.filename);
+    }
+
     const newItem = {
       nombre,
       talle,
@@ -62,7 +72,7 @@ const addClothingItem = async (req, res) => {
       textura,
       estacion,
       ocasion,
-      imageURL: imageURL || "", // Make imageURL optional with empty string as default
+      imageURL, // Usar la URL generada o cadena vacía
     };
 
     const user = await User.findById(req.user.id);
@@ -82,7 +92,7 @@ const addClothingItem = async (req, res) => {
 
     await user.save();
 
-    res.json({ ok: true, closet: user.closet });
+    res.json({ ok: true, closet: user.closet, item: newItem });
   } catch (error) {
     console.error(error);
     res.status(500).json({ ok: false, message: "Error al agregar la prenda" });

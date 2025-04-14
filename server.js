@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const Grid = require('gridfs-stream');
 // Rutas
 const publicRoutes = require('./src/routes/publicRoutes');
 const clientRoutes = require('./src/routes/clientRoutes');
@@ -23,9 +25,43 @@ app.use(bodyParser.json());
 // Conectar a MongoDB
 connectDB();
 
+// Inicializar GridFS
+let gfs;
+mongoose.connection.once('open', () => {
+  gfs = Grid(mongoose.connection.db, mongoose.mongo);
+  gfs.collection('uploads');
+  console.log('GridFS inicializado para la colección uploads');
+});
+
 app.use('/api/public', publicRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Ruta para servir imágenes desde GridFS
+app.get('/api/images/:filename', async (req, res) => {
+  try {
+    const file = await gfs.files.findOne({ filename: req.params.filename });
+    
+    if (!file || file.length === 0) {
+      return res.status(404).json({ message: 'Imagen no encontrada' });
+    }
+    
+    // Verificar si es una imagen
+    if (file.contentType.startsWith('image/')) {
+      // Crear un stream de lectura
+      const readstream = gfs.createReadStream(file.filename);
+      // Configurar el tipo de contenido
+      res.set('Content-Type', file.contentType);
+      // Enviar la imagen como respuesta
+      readstream.pipe(res);
+    } else {
+      res.status(400).json({ message: 'El archivo no es una imagen' });
+    }
+  } catch (error) {
+    console.error('Error al obtener imagen:', error);
+    res.status(500).json({ message: 'Error al obtener la imagen' });
+  }
+});
 
 // Ruta de registro
 app.post('/api/register', async (req, res) => {
