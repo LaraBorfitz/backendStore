@@ -8,19 +8,10 @@ router.get("/profile", authMiddleware, clientController.getProfile);
 
 router.get("/closet", authMiddleware, clientController.getCloset);
 
-// Ruta para añadir una prenda con imagen
+// Ruta para añadir una prenda (ahora solo recibe JSON)
 router.post(
   "/addcloset", 
-  authMiddleware, 
-  (req, res, next) => {
-    console.log('Middleware de autenticación pasado, procesando carga de archivos...');
-    next();
-  },
-  upload.single('image'), 
-  (req, res, next) => {
-    console.log('Middleware de carga de archivos completado, req.file:', req.file);
-    next();
-  },
+  authMiddleware,
   clientController.addClothingItem
 );
 

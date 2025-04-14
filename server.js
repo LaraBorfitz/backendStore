@@ -8,6 +8,7 @@ const Grid = require('gridfs-stream');
 const publicRoutes = require('./src/routes/publicRoutes');
 const clientRoutes = require('./src/routes/clientRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
 
 const connectDB = require('./src/db');
 const User = require('./src/models/User');
@@ -36,6 +37,7 @@ mongoose.connection.once('open', () => {
 app.use('/api/public', publicRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Ruta para servir imágenes desde GridFS
 app.get('/api/images/:filename', async (req, res) => {
