@@ -12,4 +12,7 @@ router.post(
   uploadController.uploadImage
 );
 
+// Ruta para servir imagen por id desde GridFS
+router.get("/images/:id", uploadController.getImage);
+
 module.exports = router;
