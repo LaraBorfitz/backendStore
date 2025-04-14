@@ -26,6 +26,9 @@ const getCloset = async (req, res) => {
 // Add clothing item to closet
 const addClothingItem = async (req, res) => {
   try {
+    console.log("Body recibido:", req.body);
+    console.log("Archivo recibido:", req.file);
+    
     const {
       nombre,
       talle,
@@ -59,8 +62,12 @@ const addClothingItem = async (req, res) => {
     // Si hay un archivo de imagen cargado
     if (req.file) {
       // Crear la URL para acceder a la imagen
-      imageURL = `/api/images/${req.file.filename}`;
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      imageURL = `${baseUrl}/api/images/${req.file.filename}`;
       console.log("Imagen subida con éxito:", req.file.filename);
+      console.log("URL de imagen generada:", imageURL);
+    } else {
+      console.log("No se recibió ninguna imagen");
     }
 
     const newItem = {
