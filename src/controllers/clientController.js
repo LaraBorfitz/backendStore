@@ -26,14 +26,6 @@ const getCloset = async (req, res) => {
 // Add clothing item to closet
 const addClothingItem = async (req, res) => {
   try {
-    console.log("==== INICIO DE LA SOLICITUD ====");
-    console.log("Headers:", req.headers);
-    console.log("Content-Type:", req.headers['content-type']);
-    console.log("Body recibido:", req.body);
-    console.log("Archivo recibido:", req.file);
-    console.log("==== FIN DE LOS DATOS DE SOLICITUD ====");
-    
-    // Extraer todos los campos excepto imageURL
     const {
       nombre,
       talle,
@@ -43,13 +35,7 @@ const addClothingItem = async (req, res) => {
       textura,
       estacion,
       ocasion,
-      // Ignoramos imageURL si viene del frontend
     } = req.body;
-    
-    // Si el frontend está enviando imageURL, lo ignoramos
-    if (req.body.imageURL !== undefined) {
-      console.log("Frontend envió imageURL, pero lo ignoraremos:", req.body.imageURL);
-    }
 
     // Validate required fields
     if (
@@ -73,12 +59,8 @@ const addClothingItem = async (req, res) => {
     // Si hay un archivo de imagen cargado
     if (req.file) {
       // Crear la URL para acceder a la imagen
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      imageURL = `${baseUrl}/api/images/${req.file.filename}`;
+      imageURL = `/api/images/${req.file.filename}`;
       console.log("Imagen subida con éxito:", req.file.filename);
-      console.log("URL de imagen generada:", imageURL);
-    } else {
-      console.log("No se recibió ninguna imagen");
     }
 
     const newItem = {
@@ -90,10 +72,8 @@ const addClothingItem = async (req, res) => {
       textura,
       estacion,
       ocasion,
-      imageURL, // Siempre usamos la URL generada por el backend, ignorando cualquier valor del frontend
+      imageURL, // Usar la URL generada o cadena vacía
     };
-    
-    console.log("URL de imagen final que se guardará:", imageURL);
 
     const user = await User.findById(req.user.id);
 
