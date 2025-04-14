@@ -32,14 +32,19 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // Límite de 5MB
   fileFilter: (req, file, cb) => {
+    console.log('Procesando archivo:', file.originalname);
+    console.log('Tipo MIME:', file.mimetype);
+    
     // Verificar que sea una imagen
     const filetypes = /jpeg|jpg|png|gif/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     
     if (mimetype && extname) {
+      console.log('Archivo aceptado:', file.originalname);
       return cb(null, true);
     }
+    console.log('Archivo rechazado:', file.originalname);
     cb(new Error('Solo se permiten archivos de imagen (jpeg, jpg, png, gif)'));
   }
 });
